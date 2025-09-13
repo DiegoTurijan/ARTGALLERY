@@ -2,375 +2,521 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Galeria de Arte - TikTok Style</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtTok - Galería de Arte</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --card-width: 90vw;
+            --card-height: 85vh;
+            --primary-color: #121212;
+            --secondary-color: #e60023;
+            --text-color: #ffffff;
+            --accent-color: #f8f8f8;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #000;
-            color: #fff;
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             overflow: hidden;
+            background-color: var(--primary-color);
+            color: var(--text-color);
             height: 100vh;
+            touch-action: pan-y;
         }
-        
-        .container {
-            position: relative;
+
+        .scroller-container {
             height: 100vh;
-            width: 100%;
-            overflow: hidden;
-        }
-        
-        .video-container {
-            position: absolute;
-            height: 100%;
-            width: 100%;
-            transition: transform 0.3s ease-out;
-        }
-        
-        .video-item {
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
             position: relative;
-            height: 100%;
-            width: 100%;
+        }
+
+        .scroller-item {
+            width: 100vw;
+            height: 100vh;
+            scroll-snap-align: start;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
             overflow: hidden;
         }
-        
-        .art-image {
+
+        .artwork-card {
+            width: var(--card-width);
+            height: var(--card-height);
+            background-color: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .artwork-image-container {
             width: 100%;
             height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
+
+        .artwork-image {
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
-            background-color: #000;
         }
-        
-        .info-sidebar {
+
+        .info-card {
+            width: var(--card-width);
+            height: var(--card-height);
+            background: linear-gradient(135deg, #2c3e50, #1a1a2e);
+            color: var(--text-color);
+            border-radius: 16px;
+            padding: 25px;
+            box-sizing: border-box;
             position: absolute;
-            bottom: 80px;
-            right: 10px;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .profile-img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 2px solid white;
-            margin-bottom: 15px;
-            background-color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .sidebar-icon {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 13px;
-        }
-        
-        .sidebar-icon i {
-            font-size: 30px;
-            margin-bottom: 5px;
-        }
-        
-        .technical-sheet {
-            position: absolute;
-            top: 0;
-            left: 100%;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 20px;
+            left: 100vw;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 20;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
-        
-        .technical-sheet.active {
-            transform: translateX(-100%);
+
+        .artwork-card.show-info + .info-card {
+            transform: translateX(-100vw) translateY(-50%);
         }
-        
-        .technical-sheet h2 {
+
+        .info-card h3 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 15px;
+            font-size: 1.8rem;
             margin-bottom: 20px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
         }
-        
-        .tech-info {
-            margin-bottom: 15px;
+
+        .info-card p {
+            margin: 12px 0;
+            font-size: 1.1rem;
+            line-height: 1.5;
         }
-        
-        .tech-info h3 {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 5px;
+
+        .info-card strong {
+            color: var(--secondary-color);
         }
-        
-        .tech-info p {
-            font-size: 16px;
-            margin-bottom: 15px;
+
+        .navigation-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            animation: pulse 2s infinite;
         }
-        
+
+        .navigation-hint i {
+            margin: 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .navigation-hint span {
+            font-size: 0.9rem;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        .swipe-indicator {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 12px 8px;
+            border-radius: 20px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            z-index: 10;
+        }
+
+        .swipe-indicator i {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .logo span {
+            color: var(--secondary-color);
+        }
+
+        .search-icon {
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
         .loading {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: var(--primary-color);
             z-index: 1000;
+            flex-direction: column;
         }
-        
-        .close-sheet {
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--secondary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            margin-top: 20px;
+            font-size: 1.1rem;
+        }
+
+        .action-buttons {
             position: absolute;
-            top: 20px;
             right: 20px;
-            font-size: 30px;
-            background: none;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .action-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .action-button i {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            transition: transform 0.2s;
+        }
+
+        .action-button i:hover {
+            transform: scale(1.1);
+        }
+
+        .artist-info {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            max-width: 60%;
+        }
+
+        .artist-info h4 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .artist-info p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .error-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+            max-width: 80%;
+        }
+
+        .error-message button {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: var(--secondary-color);
             border: none;
+            border-radius: 20px;
             color: white;
             cursor: pointer;
         }
-        
-        .error-message {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            text-align: center;
-            z-index: 1000;
+
+        /* Estilos para móviles */
+        @media (max-width: 768px) {
+            :root {
+                --card-width: 95vw;
+                --card-height: 80vh;
+            }
+            
+            .info-card {
+                padding: 20px;
+            }
+            
+            .info-card h3 {
+                font-size: 1.5rem;
+            }
+            
+            .info-card p {
+                font-size: 1rem;
+            }
+            
+            .action-button i {
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container" id="video-container">
-        <!-- Los videos se cargarán dinámicamente aquí -->
-    </div>
-    
-    <div class="loading" id="loading">
+    <div class="loading">
+        <div class="spinner"></div>
         <p>Cargando obras de arte...</p>
     </div>
-    
+
+    <div class="error-message">
+        <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+        <h3>Error al cargar los datos</h3>
+        <p>No se pudieron cargar las obras de arte. Por favor, verifica tu conexión a internet e intenta nuevamente.</p>
+        <button onclick="window.location.reload()">Reintentar</button>
+    </div>
+
+    <div class="header">
+        <div class="logo">Art<span>Tok</span></div>
+        <div class="search-icon"><i class="fas fa-search"></i></div>
+    </div>
+
+    <div class="scroller-container">
+        <!-- Las obras de arte se insertarán aquí mediante JavaScript -->
+    </div>
+
     <script>
-        // Configuración - Reemplaza con tu URL de Apps Script
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJvjDF72nZIFNOXnVEug15fRktiwn1vczJ8MTQujP92F3epj9_UfWCIx_v7T8I9LrQ_Q/exec';
-        
-        // Elementos DOM
-        const container = document.getElementById('video-container');
-        const loading = document.getElementById('loading');
-        
-        // Variables de estado
-        let currentIndex = 0;
-        let isSwiping = false;
-        let startX = 0;
-        let startY = 0;
-        let artworks = [];
-        let isTechnicalSheetOpen = false;
-        
-        // Cargar datos desde Google Sheets
-        async function loadArtworks() {
-            try {
-                const response = await fetch(APPS_SCRIPT_URL);
-                artworks = await response.json();
-                
-                if (artworks && artworks.length > 0) {
-                    renderArtworks();
-                    loading.style.display = 'none';
-                } else {
-                    showError('No se encontraron obras de arte.');
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrollerContainer = document.querySelector('.scroller-container');
+            const loadingElement = document.querySelector('.loading');
+            const errorMessage = document.querySelector('.error-message');
+            const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbwJvjDF72nZIFNOXnVEug15fRktiwn1vczJ8MTQujP92F3epj9_UfWCIx_v7T8I9LrQ_Q/exec';
+
+            async function fetchData() {
+                try {
+                    const response = await fetch(appsScriptUrl);
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error('Error al obtener los datos:', error);
+                    throw error;
                 }
-            } catch (error) {
-                console.error('Error al cargar los datos:', error);
-                showError('Error al cargar las obras. Verifica la conexión.');
             }
-        }
-        
-        // Mostrar error
-        function showError(message) {
-            loading.innerHTML = `<div class="error-message">${message}</div>`;
-        }
-        
-        // Renderizar obras de arte
-        function renderArtworks() {
-            container.innerHTML = '';
-            
-            artworks.forEach((artwork, index) => {
-                const videoItem = document.createElement('div');
-                videoItem.className = 'video-item';
-                videoItem.style.transform = `translateY(${index * 100}%)`;
+
+            function renderArtworks(artworks) {
+                // Limpiar contenedor
+                scrollerContainer.innerHTML = '';
                 
-                const img = document.createElement('img');
-                img.className = 'art-image';
-                img.src = artwork.imageUrl || 'https://via.placeholder.com/400x600/333/fff?text=Sin+Imagen';
-                img.alt = artwork.titulo;
-                
-                // Info sidebar (derecha)
-                const sidebar = document.createElement('div');
-                sidebar.className = 'info-sidebar';
-                
-                // Perfil de artista
-                const profile = document.createElement('div');
-                profile.className = 'profile-img';
-                profile.textContent = artwork.autor ? artwork.autor.charAt(0) : 'A';
-                
-                // Ficha técnica (inicialmente oculta)
-                const technicalSheet = document.createElement('div');
-                technicalSheet.className = 'technical-sheet';
-                technicalSheet.innerHTML = `
-                    <button class="close-sheet">&times;</button>
-                    <h2>Ficha Técnica</h2>
-                    <div class="tech-info">
-                        <h3>Título de la obra</h3>
-                        <p>${artwork.titulo || 'No disponible'}</p>
-                    </div>
-                    <div class="tech-info">
-                        <h3>Autor</h3>
-                        <p>${artwork.autor || 'No disponible'}</p>
-                    </div>
-                    <div class="tech-info">
-                        <h3>Fecha de creación</h3>
-                        <p>${artwork.fecha || 'No disponible'}</p>
-                    </div>
-                    <div class="tech-info">
-                        <h3>Técnica</h3>
-                        <p>${artwork.tecnica || 'No disponible'}</p>
-                    </div>
-                    <div class="tech-info">
-                        <h3>Dimensiones</h3>
-                        <p>${artwork.dimensiones || 'No disponible'}</p>
-                    </div>
-                `;
-                
-                // Evento para cerrar ficha técnica
-                technicalSheet.querySelector('.close-sheet').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    technicalSheet.classList.remove('active');
-                    isTechnicalSheetOpen = false;
+                artworks.forEach((artwork, index) => {
+                    const scrollerItem = document.createElement('div');
+                    scrollerItem.classList.add('scroller-item');
+
+                    const artworkCard = document.createElement('div');
+                    artworkCard.classList.add('artwork-card');
+                    
+                    const imageContainer = document.createElement('div');
+                    imageContainer.classList.add('artwork-image-container');
+                    
+                    const img = document.createElement('img');
+                    img.src = artwork.URL_Imagen || 'https://via.placeholder.com/500x700/333333/ffffff?text=Imagen+no+disponible';
+                    img.classList.add('artwork-image');
+                    img.alt = artwork.Titulo;
+                    img.onerror = function() {
+                        this.src = 'https://via.placeholder.com/500x700/333333/ffffff?text=Error+al+cargar+imagen';
+                    };
+                    
+                    imageContainer.appendChild(img);
+                    artworkCard.appendChild(imageContainer);
+                    
+                    const infoCard = document.createElement('div');
+                    infoCard.classList.add('info-card');
+                    infoCard.innerHTML = `
+                        <h3>${artwork.Titulo || 'Sin título'}</h3>
+                        <p><strong>Autor:</strong> ${artwork.Autor || 'Desconocido'}</p>
+                        <p><strong>Fecha:</strong> ${artwork.Fecha || 'No especificada'}</p>
+                        <p><strong>Técnica:</strong> ${artwork.Tecnica || 'No especificada'}</p>
+                        <p><strong>Dimensiones:</strong> ${artwork.Dimensiones || 'No especificadas'}</p>
+                        <p><strong>Descripción:</strong> ${artwork.Descripcion || 'No disponible'}</p>
+                    `;
+
+                    // Añadir elementos de interfaz de usuario
+                    const artistInfo = document.createElement('div');
+                    artistInfo.classList.add('artist-info');
+                    artistInfo.innerHTML = `
+                        <h4>${artwork.Titulo || 'Sin título'}</h4>
+                        <p>${artwork.Autor || 'Desconocido'}, ${artwork.Fecha || 's/f'}</p>
+                    `;
+                    
+                    const actionButtons = document.createElement('div');
+                    actionButtons.classList.add('action-buttons');
+                    actionButtons.innerHTML = `
+                        <div class="action-button">
+                            <i class="fas fa-heart"></i>
+                            <span>${Math.floor(Math.random() * 500)}</span>
+                        </div>
+                        <div class="action-button">
+                            <i class="fas fa-comment"></i>
+                            <span>${Math.floor(Math.random() * 100)}</span>
+                        </div>
+                        <div class="action-button">
+                            <i class="fas fa-bookmark"></i>
+                            <span>${Math.floor(Math.random() * 200)}</span>
+                        </div>
+                        <div class="action-button">
+                            <i class="fas fa-share"></i>
+                            <span>${Math.floor(Math.random() * 50)}</span>
+                        </div>
+                    `;
+                    
+                    scrollerItem.appendChild(artworkCard);
+                    scrollerItem.appendChild(infoCard);
+                    scrollerItem.appendChild(artistInfo);
+                    scrollerItem.appendChild(actionButtons);
+                    
+                    // Añadir indicador de deslizamiento solo al primer elemento
+                    if (index === 0) {
+                        const swipeIndicator = document.createElement('div');
+                        swipeIndicator.classList.add('swipe-indicator');
+                        swipeIndicator.innerHTML = '<i class="fas fa-arrow-left"></i><span>DESLIZA PARA INFO</span>';
+                        scrollerItem.appendChild(swipeIndicator);
+                        
+                        // Eliminar el indicador después de 5 segundos
+                        setTimeout(() => {
+                            swipeIndicator.style.display = 'none';
+                        }, 5000);
+                    }
+                    
+                    scrollerContainer.appendChild(scrollerItem);
+
+                    // Añadir funcionalidad de deslizar
+                    let startX = 0;
+                    let currentX = 0;
+                    let isSwiping = false;
+                    
+                    scrollerItem.addEventListener('touchstart', (e) => {
+                        startX = e.touches[0].clientX;
+                        isSwiping = true;
+                    });
+
+                    scrollerItem.addEventListener('touchmove', (e) => {
+                        if (!isSwiping) return;
+                        currentX = e.touches[0].clientX;
+                        const deltaX = currentX - startX;
+                        
+                        // Prevenir desplazamiento vertical durante el deslizamiento horizontal
+                        if (Math.abs(deltaX) > 10) {
+                            e.preventDefault();
+                        }
+                    });
+
+                    scrollerItem.addEventListener('touchend', () => {
+                        if (!isSwiping) return;
+                        
+                        const deltaX = currentX - startX;
+                        
+                        // Si el desplazamiento es hacia la izquierda y lo suficientemente grande
+                        if (deltaX < -50) {
+                            artworkCard.classList.add('show-info');
+                        } 
+                        // Si el desplazamiento es hacia la derecha y la info está visible
+                        else if (deltaX > 50 && artworkCard.classList.contains('show-info')) {
+                            artworkCard.classList.remove('show-info');
+                        }
+                        
+                        isSwiping = false;
+                    });
+
+                    // También permitir el click para dispositivos de escritorio
+                    scrollerItem.addEventListener('click', (e) => {
+                        // Solo alternar si no se hizo click en los botones de acción
+                        if (!e.target.closest('.action-buttons')) {
+                            artworkCard.classList.toggle('show-info');
+                        }
+                    });
                 });
                 
-                videoItem.appendChild(img);
-                videoItem.appendChild(sidebar);
-                videoItem.appendChild(technicalSheet);
-                container.appendChild(videoItem);
-            });
-            
-            // Añadir event listeners para gestos táctiles
-            addEventListeners();
-        }
-        
-        // Añadir event listeners para gestos
-        function addEventListeners() {
-            // Touch events
-            container.addEventListener('touchstart', handleTouchStart, { passive: false });
-            container.addEventListener('touchmove', handleTouchMove, { passive: false });
-            container.addEventListener('touchend', handleTouchEnd);
-            
-            // Mouse events para desarrollo
-            container.addEventListener('mousedown', handleMouseDown);
-            container.addEventListener('mousemove', handleMouseMove);
-            container.addEventListener('mouseup', handleMouseUp);
-            container.addEventListener('mouseleave', handleMouseUp);
-        }
-        
-        // Manejo de eventos táctiles
-        function handleTouchStart(e) {
-            if (isTechnicalSheetOpen) return;
-            
-            const touch = e.touches[0];
-            startX = touch.clientX;
-            startY = touch.clientY;
-            isSwiping = true;
-        }
-        
-        function handleTouchMove(e) {
-            if (!isSwiping || isTechnicalSheetOpen) return;
-            
-            const touch = e.touches[0];
-            const diffX = touch.clientX - startX;
-            const diffY = touch.clientY - startY;
-            
-            // Determinar si es un desplazamiento horizontal o vertical
-            if (Math.abs(diffX) > Math.abs(diffY)) {
-                e.preventDefault(); // Prevenir scroll vertical
-                
-                // Desplazamiento horizontal - mostrar/ocultar ficha técnica
-                const technicalSheet = document.querySelectorAll('.technical-sheet')[currentIndex];
-                
-                if (diffX < -50) { // Deslizar a la izquierda
-                    technicalSheet.classList.add('active');
-                    isTechnicalSheetOpen = true;
-                    isSwiping = false;
-                } else if (diffX > 50 && isTechnicalSheetOpen) { // Deslizar a la derecha
-                    technicalSheet.classList.remove('active');
-                    isTechnicalSheetOpen = false;
-                    isSwiping = false;
-                }
+                // Ocultar loading después de renderizar
+                loadingElement.style.display = 'none';
             }
-        }
-        
-        function handleTouchEnd() {
-            isSwiping = false;
-        }
-        
-        // Manejo de eventos de ratón (para desarrollo)
-        function handleMouseDown(e) {
-            if (isTechnicalSheetOpen) return;
-            
-            startX = e.clientX;
-            startY = e.clientY;
-            isSwiping = true;
-        }
-        
-        function handleMouseMove(e) {
-            if (!isSwiping || isTechnicalSheetOpen) return;
-            
-            const diffX = e.clientX - startX;
-            const diffY = e.clientY - startY;
-            
-            if (Math.abs(diffX) > Math.abs(diffY)) {
-                const technicalSheet = document.querySelectorAll('.technical-sheet')[currentIndex];
-                
-                if (diffX < -50) {
-                    technicalSheet.classList.add('active');
-                    isTechnicalSheetOpen = true;
-                    isSwiping = false;
-                } else if (diffX > 50 && isTechnicalSheetOpen) {
-                    technicalSheet.classList.remove('active');
-                    isTechnicalSheetOpen = false;
-                    isSwiping = false;
-                }
-            }
-        }
-        
-        function handleMouseUp() {
-            isSwiping = false;
-        }
-        
-        // Inicializar
-        loadArtworks();
+
+            // Cargar datos desde Google Apps Script
+            fetchData()
+                .then(data => {
+                    if (data && data.length > 0) {
+                        renderArtworks(data);
+                    } else {
+                        throw new Error('No se recibieron datos o el array está vacío');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingElement.style.display = 'none';
+                    errorMessage.style.display = 'block';
+                });
+        });
     </script>
 </body>
 </html>
