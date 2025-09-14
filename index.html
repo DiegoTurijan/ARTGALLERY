@@ -381,16 +381,7 @@
                     imageContainer.classList.add('artwork-image-container');
                     
                     const img = document.createElement('img');
-                    // Si el campo es un ID de Google Drive, construimos la URL
-                    if (artwork.URL_Imagen && artwork.URL_Imagen.startsWith('http')) {
-                        img.src = artwork.URL_Imagen;
-                    } else if (artwork.URL_Imagen) {
-                        // Asumimos que es un ID de Google Drive
-                        img.src = `https://drive.google.com/uc?export=view&id=${artwork.URL_Imagen}`;
-                    } else {
-                        img.src = 'https://via.placeholder.com/500x700/333333/ffffff?text=Imagen+no+disponible';
-                    }
-                    
+                    img.src = artwork.URL_Imagen || 'https://via.placeholder.com/500x700/333333/ffffff?text=Imagen+no+disponible';
                     img.classList.add('artwork-image');
                     img.alt = artwork.Titulo;
                     img.onerror = function() {
