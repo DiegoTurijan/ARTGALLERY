@@ -3,129 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArtBroke - Galería de Arte</title>
+    <title>ArtBrok - Galería de Arte</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --card-width: 90vw;
-            --card-height: 85vh;
-            --primary-color: #121212;
-            --secondary-color: #e60023;
+            --primary-color: #0a0a0a;
+            --secondary-color: #800040;
+            --surface-color: #1a1a1a;
             --text-color: #ffffff;
+            --header-height: 70px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
             background-color: var(--primary-color);
             color: var(--text-color);
-            height: 100vh;
         }
+        .loading { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            display: flex; justify-content: center; align-items: center; 
+            background-color: var(--primary-color); z-index: 2000; 
+            flex-direction: column; gap: 10px;
+        }
+        .spinner { 
+            width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 50%; border-top-color: var(--secondary-color); 
+            animation: spin 1s ease-in-out infinite; 
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .header {
+            position: fixed; top: 0; left: 0; width: 100%; 
+            height: var(--header-height); padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center; 
+            z-index: 1000; background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo { font-size: 1.6rem; font-weight: bold; }
+        .logo span { color: var(--secondary-color); }
+        .user-profile { display: flex; align-items: center; gap: 10px; }
+        .user-profile img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--secondary-color); }
+        #login-btn, #logout-btn { 
+            background-color: var(--secondary-color); color: white; border: none; 
+            padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; 
+            transition: background-color 0.2s;
+        }
+        #login-btn:hover, #logout-btn:hover { background-color: #a00050; }
+
+        /* Mobile-first styles */
         .scroller-container {
             height: 100vh;
+            width: 100vw;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scroll-behavior: smooth;
         }
         .scroller-item {
-            width: 100vw;
-            height: 100vh;
+            width: 100vw; height: 100vh;
             scroll-snap-align: start;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .artwork-card {
-            width: var(--card-width);
-            height: var(--card-height);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
             background-color: #000;
         }
-        .artwork-image {
-            width: 100%; height: 100%; object-fit: contain;
+        .artwork-image { width: 100%; height: 100%; object-fit: contain; }
+        .action-buttons { 
+            position: absolute; right: 15px; bottom: 120px; 
+            display: flex; flex-direction: column; gap: 25px; z-index: 10;
         }
-        .info-card {
-            width: var(--card-width); height: var(--card-height);
-            background: linear-gradient(135deg, #2c3e50, #1a1a2e);
-            border-radius: 16px; padding: 25px;
-            position: absolute; left: 100vw; top: 50%;
-            transform: translateY(-50%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow-y: auto;
+        .action-button { 
+            display: flex; flex-direction: column; align-items: center; 
+            color: white; font-size: 0.8rem; cursor: pointer; 
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5); 
         }
-        .artwork-card.show-info + .info-card { transform: translateX(-100vw) translateY(-50%); }
-        .info-card h3 { border-bottom: 2px solid var(--secondary-color); padding-bottom: 15px; font-size: 1.8rem; margin-bottom: 20px; }
-        .info-card p { margin: 12px 0; font-size: 1.1rem; line-height: 1.5; }
-        .header {
-            position: fixed; top: 0; left: 0; width: 100%; padding: 15px 20px;
-            display: flex; justify-content: space-between; align-items: center; z-index: 100;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-        }
-        .logo { font-size: 1.5rem; font-weight: bold; }
-        .logo span { color: var(--secondary-color); }
-        .user-profile { display: flex; align-items: center; gap: 10px; }
-        .user-profile img { width: 40px; height: 40px; border-radius: 50%; }
-        #login-btn, #logout-btn { background-color: var(--secondary-color); color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        .loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: var(--primary-color); z-index: 1000; flex-direction: column; }
-        .spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: var(--secondary-color); animation: spin 1s ease-in-out infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .action-buttons { position: absolute; right: calc((100vw - var(--card-width)) / 2 + 20px); bottom: 100px; display: flex; flex-direction: column; gap: 20px; z-index: 10;}
-        .action-button { display: flex; flex-direction: column; align-items: center; color: white; font-size: 0.8rem; cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
         .action-button i { font-size: 1.8rem; margin-bottom: 5px; transition: transform 0.2s, color 0.2s; }
         .action-button .fa-heart.liked { color: var(--secondary-color); }
-        .artist-info { position: absolute; bottom: 30px; left: calc((100vw - var(--card-width)) / 2 + 20px); max-width: 60%; z-index: 10; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
+        .artist-info { 
+            position: absolute; bottom: 120px; left: 15px; 
+            max-width: 70%; z-index: 10; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+        .artist-info h4 { font-size: 1.2rem; margin-bottom: 5px; }
+        .artist-info p { font-size: 1rem; opacity: 0.9; margin-bottom: 8px; display: flex; align-items: center; cursor: pointer; }
+        .artist-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, #fe2c55, #9933ff);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; margin-right: 10px; flex-shrink: 0;
+        }
+        .art-description {
+            position: absolute; bottom: 70px; left: 15px; max-width: 70%;
+            font-size: 0.9rem; z-index: 10; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            max-height: 3.6em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box;
+            -webkit-line-clamp: 2; -webkit-box-orient: vertical; cursor: pointer;
+            transition: max-height 0.3s ease;
+        }
+        .art-description.expanded {
+            max-height: 200px; -webkit-line-clamp: unset; background: rgba(0, 0, 0, 0.7);
+            padding: 10px; border-radius: 8px; backdrop-filter: blur(5px);
+        }
+        .art-technique { font-size: 0.8rem; opacity: 0.8; margin-top: 5px; }
+
+        .modal { 
+            display: none; position: fixed; z-index: 1001; left: 0; top: 0; 
+            width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); 
+            backdrop-filter: blur(5px); 
+        }
+        .modal-content { 
+            background-color: var(--surface-color); margin: 0; position: absolute;
+            bottom: 0; width: 100%; height: 75%; border-top-left-radius: 12px;
+            border-top-right-radius: 12px; padding: 20px; animation: slideUp 0.3s ease;
+            display: flex; flex-direction: column;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .comments-list { flex-grow: 1; overflow-y: auto; }
+        .comment { padding: 10px 0; border-bottom: 1px solid #333; display: flex; align-items: flex-start; gap: 10px; }
+        .comment-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .comment-content { flex: 1; }
+        .comment strong { color: var(--secondary-color); margin-right: 5px; }
+        .comment-form { display: flex; gap: 10px; margin-top: 15px; }
+        .comment-form input { flex-grow: 1; padding: 12px 15px; border-radius: 25px; border: none; background-color: #2a2a2a; color: white; }
+        .comment-form button { background: var(--secondary-color); border: none; color: white; padding: 12px 20px; border-radius: 25px; cursor: pointer; }
+
+        /* Profile Panel */
+        .profile-panel {
+            position: fixed; top: 0; right: -100vw; width: 100vw; height: 100vh;
+            background: #121212; z-index: 1500; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto; padding: 20px; padding-top: calc(var(--header-height) + 20px);
+        }
+        .profile-panel.open { transform: translateX(-100vw); }
+        .close-profile {
+            position: absolute; top: 20px; right: 20px; font-size: 1.5rem;
+            background: none; border: none; color: white; cursor: pointer;
+        }
+        .profile-header { display: flex; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #333; }
+        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #fe2c55, #9933ff); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; margin-right: 15px; }
+        .profile-info h2 { font-size: 1.5rem; margin-bottom: 5px; }
+        .profile-info p { opacity: 0.7; }
+        .profile-stats { display: flex; justify-content: space-around; margin-bottom: 20px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 1.2rem; font-weight: bold; }
+        .stat-label { font-size: 0.8rem; opacity: 0.7; }
+        .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+        .profile-grid-item { aspect-ratio: 1/1; overflow: hidden; cursor: pointer; }
+        .profile-grid-item img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Modal de Comentarios */
-        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px); }
-        .modal-content { background-color: #2c3e50; margin: 15% auto; padding: 20px; border-radius: 10px; width: 80%; max-width: 500px; }
-        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .comments-list { max-height: 300px; overflow-y: auto; margin-bottom: 20px; }
-        .comment { padding: 10px; border-bottom: 1px solid #444; }
-        .comment strong { color: var(--secondary-color); }
-        .comment-form { display: flex; gap: 10px; }
-        .comment-form input { flex-grow: 1; padding: 10px; border-radius: 20px; border: none; background-color: #1a1a2e; color: white; }
-        .comment-form button { background: var(--secondary-color); border: none; color: white; padding: 10px 15px; border-radius: 20px; cursor: pointer; }
+        /* Ocultar elementos específicos para escritorio por defecto */
+        .details-panel { display: none; }
+        .desktop-main-container { padding-top: var(--header-height); }
+
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            body { overflow: hidden; /* Evitar el scroll del body */ }
+            .desktop-main-container {
+                display: flex;
+                max-width: 1600px;
+                height: calc(100vh - var(--header-height));
+                margin: 0 auto;
+                gap: 20px;
+                padding: 20px;
+            }
+            .scroller-container {
+                flex: 2;
+                height: 100%;
+                border-radius: 12px;
+                background-color: #000;
+            }
+            .scroller-item { border-radius: 12px; }
+            .details-panel {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                height: 100%;
+                max-width: 450px;
+                overflow-y: auto;
+                background-color: var(--surface-color);
+                border-radius: 12px;
+                padding: 20px;
+            }
+            /* Ocultar elementos de UI móvil en escritorio */
+            .artist-info, .art-description, .action-buttons {
+                display: none;
+            }
+             /* Estilos para panel de detalles */
+            .details-panel .artist-info {
+                display: block; position: static; max-width: none; text-shadow: none;
+            }
+            .details-panel .art-description {
+                display: block; position: static; max-width: none; text-shadow: none;
+                max-height: none; -webkit-line-clamp: unset; background: none; padding: 0;
+                margin: 15px 0;
+            }
+            .details-panel .action-buttons {
+                display: flex; position: static; flex-direction: row; gap: 20px;
+                margin: 15px 0; border-top: 1px solid #333; border-bottom: 1px solid #333;
+                padding: 15px 0;
+            }
+            .details-panel .action-button i { font-size: 1.5rem; }
+            .details-panel .comment-section { margin-top: auto; }
+            .details-panel .comments-list { max-height: 300px; }
+            .profile-panel { width: 400px; right: -400px; }
+            .profile-panel.open { transform: translateX(-400px); }
+        }
     </style>
 </head>
 <body>
     <div class="loading"><div class="spinner"></div><p>Cargando obras de arte...</p></div>
-    <div class="header">
-        <div class="logo">Art<span>Broke</span></div>
+    <header class="header">
+        <div class="logo">@rt<span>Brok</span></div>
         <div id="user-auth-container"></div>
-    </div>
-    <div class="scroller-container"></div>
+    </header>
 
-    <!-- Modal de Comentarios -->
+    <main class="desktop-main-container">
+        <div class="scroller-container"></div>
+        <aside class="details-panel" id="details-panel">
+            <!-- El contenido se inyectará aquí en la vista de escritorio -->
+        </aside>
+    </main>
+
+    <div class="profile-panel" id="profile-panel">
+        <button class="close-profile" id="close-profile">&times;</button>
+        <div class="profile-header">
+            <div class="profile-avatar" id="profile-avatar"></div>
+            <div class="profile-info">
+                <h2 id="profile-name"></h2>
+                <p id="profile-username"></p>
+            </div>
+        </div>
+        <div class="profile-stats">
+            <div class="stat"><div class="stat-value" id="stat-works"></div><div class="stat-label">Obras</div></div>
+        </div>
+        <div class="profile-grid" id="profile-grid"></div>
+    </div>
+
     <div id="comments-modal" class="modal">
       <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h2>Comentarios</h2>
+        <div class="modal-header">
+          <h2>Comentarios</h2>
+          <span class="close-btn">&times;</span>
+        </div>
         <div class="comments-list" id="modal-comments-list"></div>
-        <form id="comment-form" class="comment-form">
-          <input type="text" id="comment-input" placeholder="Añade un comentario..." required>
+        <form class="comment-form" id="mobile-comment-form">
+          <input type="text" id="mobile-comment-input" placeholder="Añade un comentario..." required>
           <button type="submit">Enviar</button>
         </form>
       </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
       
         const firebaseConfig = {
-            apiKey: "AIzaSyAlJyGAHYv30n2TOayKy3JwFTYw_RxT5N8",
-            authDomain: "artbroke-306d1.firebaseapp.com",
-            projectId: "artbroke-306d1",
-            storageBucket: "artbroke-306d1.appspot.com",
-            messagingSenderId: "394124927983",
-            appId: "1:394124927983:web:31ac480d2de6df2ebb0c1a"
+            // Tu configuración de Firebase aquí
         };
       
         const app = initializeApp(firebaseConfig);
@@ -133,220 +265,365 @@
         const provider = new GoogleAuthProvider();
       
         let currentUser = null;
+        let artworksData = [];
+        let activeArtworkId = null;
+
         const scrollerContainer = document.querySelector('.scroller-container');
         const loadingElement = document.querySelector('.loading');
         const userAuthContainer = document.getElementById('user-auth-container');
-        const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbwr4iTtxx4ZRBYD-X8gFgN7P8CYZT7oedMnAu4LzO06QqR6XHmaIhOWLvqILwWsBbtp/exec';
-        let artworksData = [];
+        const profilePanel = document.getElementById('profile-panel');
+        const detailsPanel = document.getElementById('details-panel');
 
-        // --- MANEJO DE AUTENTICACIÓN ---
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            updateUIForAuthState(user);
-            fetchArtworks();
-        });
+        const apiService = {
+            baseUrl: 'https://script.google.com/macros/s/AKfycbwr4iTtxx4ZRBYD-X8gFgN7P8CYZT7oedMnAu4LzO06QqR6XHmaIhOWLvqILwWsBbtp/exec',
+            async getArtworks(userId = null) {
+                const url = userId ? `${this.baseUrl}?userId=${userId}` : this.baseUrl;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Error al obtener las obras');
+                return response.json();
+            },
+            async postAction(payload) {
+                const response = await fetch(this.baseUrl, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`Error al realizar la acción: ${payload.action}`);
+                return response.json();
+            }
+        };
 
-        function updateUIForAuthState(user) {
-            if (user) {
-                userAuthContainer.innerHTML = `
-                    <div class="user-profile">
-                        <img src="${user.photoURL}" alt="Foto de perfil">
-                        <span>${user.displayName}</span>
-                        <button id="logout-btn">Salir</button>
+        function getInitials(name) {
+            return name.split(' ').map(part => part.charAt(0)).join('').toUpperCase().substring(0, 2);
+        }
+
+        function isDesktop() {
+            return window.innerWidth >= 1024;
+        }
+
+        function createArtworkCard(artwork) {
+            const authorInitials = getInitials(artwork.Autor || 'Artista');
+            const techniqueInfo = [
+                artwork.Tecnica ? `Técnica: ${artwork.Tecnica}` : '',
+                artwork.Dimensiones ? `Medidas: ${artwork.Dimensiones}` : '',
+                artwork.Fecha ? `Año: ${artwork.Fecha}` : '',
+                artwork.PrecioPublico ? `Precio: $${Number(artwork.PrecioPublico).toLocaleString()}` : ''
+            ].filter(Boolean).join(' • ');
+            
+            const card = document.createElement('div');
+            card.className = 'scroller-item';
+            card.id = `artwork-item-${artwork.ID_Obra}`;
+            card.innerHTML = `
+                <img src="${artwork.URL_Imagen}" class="artwork-image" alt="${artwork.Titulo}">
+                <div class="artist-info">
+                    <h4>${artwork.Titulo}</h4>
+                    <p data-author="${artwork.Autor}"><span class="artist-avatar">${authorInitials}</span>@${artwork.Autor || 'Artista'}</p>
+                </div>
+                <div class="art-description">
+                    ${artwork.Descripcion || 'Sin descripción'}
+                    ${techniqueInfo ? `<div class="art-technique">${techniqueInfo}</div>` : ''}
+                </div>
+                <div class="action-buttons">
+                    <div class="action-button" data-action="like" data-artwork-id="${artwork.ID_Obra}">
+                        <i class="fas fa-heart ${artwork.userHasLiked ? 'liked' : ''}"></i>
+                        <span>${artwork.likes}</span>
                     </div>
-                `;
-                document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
-            } else {
-                userAuthContainer.innerHTML = `<button id="login-btn">Iniciar Sesión con Google</button>`;
-                document.getElementById('login-btn').addEventListener('click', () => signInWithPopup(auth, provider));
+                    <div class="action-button" data-action="comment" data-artwork-id="${artwork.ID_Obra}">
+                        <i class="fas fa-comment"></i>
+                        <span>${artwork.comments.length}</span>
+                    </div>
+                    <div class="action-button" data-action="share" data-artwork-id="${artwork.ID_Obra}">
+                        <i class="fas fa-share"></i>
+                        <span>Compartir</span>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+        
+        function renderArtworks(artworks) {
+            scrollerContainer.innerHTML = '';
+            artworks.forEach(artwork => {
+                const card = createArtworkCard(artwork);
+                scrollerContainer.appendChild(card);
+            });
+            addGlobalEventListeners();
+            setupIntersectionObserver();
+        }
+        
+        function renderDetailsPanel(artwork) {
+            if (!isDesktop() || !artwork) return;
+            
+            const authorInitials = getInitials(artwork.Autor || 'Artista');
+             const techniqueInfo = [
+                artwork.Tecnica ? `Técnica: ${artwork.Tecnica}` : '',
+                artwork.Dimensiones ? `Medidas: ${artwork.Dimensiones}` : '',
+                artwork.Fecha ? `Año: ${artwork.Fecha}` : '',
+                artwork.PrecioPublico ? `Precio: $${Number(artwork.PrecioPublico).toLocaleString()}` : ''
+            ].filter(Boolean).join(' • ');
+
+            detailsPanel.innerHTML = `
+                <div class="artist-info">
+                    <h4>${artwork.Titulo}</h4>
+                    <p data-author="${artwork.Autor}"><span class="artist-avatar">${authorInitials}</span>@${artwork.Autor || 'Artista'}</p>
+                </div>
+                <div class="art-description">
+                    ${artwork.Descripcion || 'Sin descripción'}
+                    ${techniqueInfo ? `<div class="art-technique">${techniqueInfo}</div>` : ''}
+                </div>
+                <div class="action-buttons">
+                    <div class="action-button" data-action="like" data-artwork-id="${artwork.ID_Obra}">
+                        <i class="fas fa-heart ${artwork.userHasLiked ? 'liked' : ''}"></i>
+                        <span>${artwork.likes}</span>
+                    </div>
+                    <div class="action-button" data-action="comment" data-artwork-id="${artwork.ID_Obra}">
+                        <i class="fas fa-comment"></i>
+                        <span>${artwork.comments.length}</span>
+                    </div>
+                    <div class="action-button" data-action="share" data-artwork-id="${artwork.ID_Obra}">
+                        <i class="fas fa-share"></i>
+                        <span>Compartir</span>
+                    </div>
+                </div>
+                <div class="comment-section">
+                    <h4>Comentarios</h4>
+                    <div class="comments-list" id="desktop-comments-list">
+                        ${artwork.comments.length > 0 ? artwork.comments.map(c => `
+                            <div class="comment">
+                                <img src="${c.userPhoto || 'https://via.placeholder.com/40'}" class="comment-avatar">
+                                <div class="comment-content">
+                                    <p><strong>${c.userName}:</strong> ${c.commentText}</p>
+                                </div>
+                            </div>
+                        `).join('') : '<p>No hay comentarios.</p>'}
+                    </div>
+                    <form class="comment-form" id="desktop-comment-form">
+                        <input type="text" id="desktop-comment-input" placeholder="Añade un comentario..." required>
+                        <button type="submit">Enviar</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        function setupIntersectionObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.id.split('-')[2];
+                        activeArtworkId = id;
+                        const artwork = artworksData.find(art => art.ID_Obra == id);
+                        renderDetailsPanel(artwork);
+                    }
+                });
+            }, { threshold: 0.6 });
+            
+            document.querySelectorAll('.scroller-item').forEach(item => observer.observe(item));
+        }
+        
+        async function handleActionClick(e) {
+            const button = e.target.closest('.action-button');
+            if (!button) return;
+            
+            const { action, artworkId } = button.dataset;
+            const artwork = artworksData.find(art => art.ID_Obra == artworkId);
+            
+            switch(action) {
+                case 'like':
+                    if (!currentUser) { alert('Debes iniciar sesión para dar me gusta.'); return; }
+                    toggleLike(artworkId);
+                    break;
+                case 'comment':
+                    if (isDesktop()) {
+                        document.getElementById('desktop-comment-input')?.focus();
+                    } else {
+                        openCommentsModal(artworkId);
+                    }
+                    break;
+                case 'share':
+                    if (navigator.share) {
+                        navigator.share({
+                            title: artwork.Titulo,
+                            text: `Mira esta obra de arte: ${artwork.Titulo} por ${artwork.Autor}`,
+                            url: window.location.href.split('#')[0] + '#artwork-' + artworkId
+                        }).catch(console.error);
+                    } else {
+                        alert('Compartir no es compatible en este navegador.');
+                    }
+                    break;
+            }
+        }
+        
+        async function toggleLike(artworkId) {
+            const artwork = artworksData.find(art => art.ID_Obra == artworkId);
+            artwork.userHasLiked = !artwork.userHasLiked;
+            artwork.likes += artwork.userHasLiked ? 1 : -1;
+            
+            document.querySelectorAll(`[data-action="like"][data-artwork-id="${artworkId}"]`).forEach(btn => {
+                btn.querySelector('i').classList.toggle('liked', artwork.userHasLiked);
+                btn.querySelector('span').textContent = artwork.likes;
+            });
+            
+            try {
+                await apiService.postAction({ action: 'toggleLike', artworkId, user: { uid: currentUser.uid } });
+            } catch (error) {
+                console.error("Error al dar like:", error);
+                // Revert UI on error
+                artwork.userHasLiked = !artwork.userHasLiked;
+                artwork.likes += artwork.userHasLiked ? 1 : -1;
+                 document.querySelectorAll(`[data-action="like"][data-artwork-id="${artworkId}"]`).forEach(btn => {
+                    btn.querySelector('i').classList.toggle('liked', artwork.userHasLiked);
+                    btn.querySelector('span').textContent = artwork.likes;
+                });
             }
         }
 
-        // --- LÓGICA DE LA APLICACIÓN ---
-        async function fetchArtworks() {
-            loadingElement.style.display = 'flex';
-            const url = currentUser ? `${appsScriptUrl}?userId=${currentUser.uid}` : appsScriptUrl;
+        function handleArtistClick(e) {
+            const authorElement = e.target.closest('[data-author]');
+            if (!authorElement) return;
+            const authorName = authorElement.dataset.author;
+            openArtistProfile(authorName);
+        }
+
+        function openArtistProfile(authorName) {
+            if (!authorName) return;
+
+            const authorWorks = artworksData.filter(art => art.Autor === authorName);
+            if (authorWorks.length === 0) return;
+
+            document.getElementById('profile-avatar').textContent = getInitials(authorName);
+            document.getElementById('profile-name').textContent = authorName;
+            document.getElementById('profile-username').textContent = `@${authorName.replace(/\s+/g, '').toLowerCase()}`;
+            document.getElementById('stat-works').textContent = authorWorks.length;
+
+            const profileGrid = document.getElementById('profile-grid');
+            profileGrid.innerHTML = '';
+            authorWorks.forEach(art => {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'profile-grid-item';
+                gridItem.innerHTML = `<img src="${art.URL_Imagen}" alt="${art.Titulo}">`;
+                gridItem.addEventListener('click', () => {
+                    profilePanel.classList.remove('open');
+                    document.getElementById(`artwork-item-${art.ID_Obra}`)?.scrollIntoView({ behavior: 'smooth' });
+                });
+                profileGrid.appendChild(gridItem);
+            });
+            
+            profilePanel.classList.add('open');
+        }
+
+        function addGlobalEventListeners() {
+            document.body.addEventListener('click', (e) => {
+                handleActionClick(e);
+                handleArtistClick(e);
+
+                const desc = e.target.closest('.art-description');
+                if (desc) desc.classList.toggle('expanded');
+            });
+            
+            document.getElementById('desktop-comment-form')?.addEventListener('submit', (e) => handleCommentSubmit(e, 'desktop'));
+        }
+
+        async function handleCommentSubmit(e, type) {
+            e.preventDefault();
+            if (!currentUser) { alert('Debes iniciar sesión para comentar.'); return; }
+            
+            const input = document.getElementById(`${type}-comment-input`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const artwork = artworksData.find(art => art.ID_Obra == activeArtworkId);
+            if (!artwork) return;
+
+            const tempId = Date.now();
+            const newComment = {
+                commentText: text,
+                userName: currentUser.displayName,
+                userPhoto: currentUser.photoURL,
+                tempId
+            };
+            artwork.comments.push(newComment);
+            updateCommentsUI(activeArtworkId);
+
+            input.value = '';
+
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Error en la respuesta del servidor');
-                artworksData = await response.json();
+                await apiService.postAction({ 
+                    action: 'addComment', artworkId: activeArtworkId, commentText: text, 
+                    user: { uid: currentUser.uid, displayName: currentUser.displayName, photoURL: currentUser.photoURL }
+                });
+            } catch (error) {
+                console.error('Error al enviar comentario:', error);
+                artwork.comments = artwork.comments.filter(c => c.tempId !== tempId);
+                updateCommentsUI(activeArtworkId);
+                alert('No se pudo enviar el comentario.');
+            }
+        }
+        
+        function updateCommentsUI(artworkId) {
+            const artwork = artworksData.find(art => art.ID_Obra == artworkId);
+            const commentCount = artwork.comments.length;
+
+            // Update comment counts
+            document.querySelectorAll(`[data-action="comment"][data-artwork-id="${artworkId}"] span`).forEach(el => {
+                el.textContent = commentCount;
+            });
+            
+            // Update lists
+            const generateCommentHTML = (c) => `
+                <div class="comment">
+                    <img src="${c.userPhoto || 'https://via.placeholder.com/40'}" class="comment-avatar">
+                    <div class="comment-content"><p><strong>${c.userName}:</strong> ${c.commentText}</p></div>
+                </div>`;
+            
+            const listHTML = artwork.comments.length > 0 ? artwork.comments.map(generateCommentHTML).join('') : '<p>Sé el primero en comentar.</p>';
+            
+            document.getElementById('desktop-comments-list')?.innerHTML = listHTML;
+            document.getElementById('modal-comments-list').innerHTML = listHTML;
+        }
+
+        // --- Auth & Init ---
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            userAuthContainer.innerHTML = user
+                ? `<div class="user-profile"><img src="${user.photoURL}" alt="Foto de perfil"><span>${user.displayName}</span><button id="logout-btn">Salir</button></div>`
+                : `<button id="login-btn">Iniciar Sesión</button>`;
+
+            if (user) {
+                document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+            } else {
+                document.getElementById('login-btn').addEventListener('click', () => signInWithPopup(auth, provider));
+            }
+            main();
+        });
+
+        async function main() {
+            loadingElement.style.display = 'flex';
+            try {
+                artworksData = await apiService.getArtworks(currentUser?.uid);
                 renderArtworks(artworksData);
             } catch (error) {
-                console.error('Error al obtener los datos:', error);
+                console.error('Error al inicializar:', error);
+                scrollerContainer.innerHTML = `<p style="text-align:center; padding: 40px;">No se pudieron cargar las obras de arte. Inténtalo de nuevo más tarde.</p>`;
             } finally {
                 loadingElement.style.display = 'none';
             }
         }
 
-        function renderArtworks(artworks) {
-            scrollerContainer.innerHTML = '';
-            artworks.forEach((artwork) => {
-                const scrollerItem = document.createElement('div');
-                scrollerItem.classList.add('scroller-item');
-                scrollerItem.innerHTML = `
-                    <div class="artwork-card">
-                        <img src="${artwork.URL_Imagen}" class="artwork-image" alt="${artwork.Titulo}">
-                    </div>
-                    <div class="info-card">
-                        <h3>${artwork.Titulo}</h3>
-                        <p><strong>Autor:</strong> ${artwork.Autor}</p>
-                        <p><strong>Descripción:</strong> ${artwork.Descripcion}</p>
-                    </div>
-                    <div class="artist-info">
-                        <h4>${artwork.Titulo}</h4>
-                        <p>@${artwork.Autor}</p>
-                    </div>
-                    <div class="action-buttons">
-                        <div class="action-button" id="like-btn-${artwork.ID_Obra}">
-                            <i class="fas fa-heart ${artwork.userHasLiked ? 'liked' : ''}"></i>
-                            <span id="like-count-${artwork.ID_Obra}">${artwork.likes}</span>
-                        </div>
-                        <div class="action-button" id="comment-btn-${artwork.ID_Obra}">
-                            <i class="fas fa-comment"></i>
-                            <span id="comment-count-${artwork.ID_Obra}">${artwork.comments.length}</span>
-                        </div>
-                    </div>
-                `;
-                scrollerContainer.appendChild(scrollerItem);
-            });
-            addEventListeners();
-        }
-
-        function addEventListeners() {
-            document.querySelectorAll('.artwork-card').forEach(card => {
-                card.addEventListener('click', (e) => {
-                    if (!e.target.closest('.action-buttons')) {
-                        card.classList.toggle('show-info');
-                    }
-                });
-            });
-
-            document.querySelectorAll('.action-button[id^="like-btn-"]').forEach(button => {
-                button.addEventListener('click', handleLikeClick);
-            });
-            
-            document.querySelectorAll('.action-button[id^="comment-btn-"]').forEach(button => {
-                button.addEventListener('click', handleCommentClick);
-            });
-        }
-        
-        // --- MANEJO DE ACCIONES ---
-        async function handleLikeClick(event) {
-            if (!currentUser) {
-                alert('Debes iniciar sesión para dar me gusta.');
-                return;
-            }
-            const button = event.currentTarget;
-            const artworkId = button.id.split('-')[2];
-            const icon = button.querySelector('i');
-            const countSpan = button.querySelector('span');
-            const isLiked = icon.classList.toggle('liked');
-
-            // Actualización optimista de la UI
-            let currentLikes = parseInt(countSpan.textContent);
-            countSpan.textContent = isLiked ? currentLikes + 1 : currentLikes - 1;
-
-            // Enviar al backend
-            try {
-                await fetch(appsScriptUrl, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'toggleLike',
-                        artworkId: artworkId,
-                        user: { uid: currentUser.uid }
-                    })
-                });
-                // Podrías volver a cargar los datos para confirmar, pero la actualización optimista es más rápida.
-            } catch (error) {
-                console.error("Error al dar like:", error);
-                // Revertir el cambio si falla
-                icon.classList.toggle('liked');
-                countSpan.textContent = currentLikes;
-            }
-        }
-        
-        function handleCommentClick(event) {
-            const button = event.currentTarget;
-            const artworkId = button.id.split('-')[2];
-            openCommentsModal(artworkId);
-        }
-
-        // --- LÓGICA DEL MODAL DE COMENTARIOS ---
-        const modal = document.getElementById('comments-modal');
-        const closeBtn = document.querySelector('.close-btn');
-        const commentForm = document.getElementById('comment-form');
-        const commentsList = document.getElementById('modal-comments-list');
-        const commentInput = document.getElementById('comment-input');
-        let currentArtworkIdForComment = null;
-
-        closeBtn.onclick = () => { modal.style.display = "none"; }
-        window.onclick = (event) => { if (event.target == modal) { modal.style.display = "none"; } }
+        // --- Modals and Panels ---
+        const commentsModal = document.getElementById('comments-modal');
+        commentsModal.querySelector('.close-btn').onclick = () => commentsModal.style.display = "none";
+        document.getElementById('mobile-comment-form').addEventListener('submit', (e) => handleCommentSubmit(e, 'mobile'));
 
         function openCommentsModal(artworkId) {
-            currentArtworkIdForComment = artworkId;
-            const artwork = artworksData.find(art => art.ID_Obra == artworkId);
-            commentsList.innerHTML = '';
-            if (artwork && artwork.comments.length > 0) {
-                artwork.comments.forEach(comment => {
-                    const div = document.createElement('div');
-                    div.classList.add('comment');
-                    div.innerHTML = `<p><strong>${comment.userName}:</strong> ${comment.commentText}</p>`;
-                    commentsList.appendChild(div);
-                });
-            } else {
-                commentsList.innerHTML = '<p>No hay comentarios todavía. ¡Sé el primero!</p>';
-            }
-            modal.style.display = "block";
+            activeArtworkId = artworkId;
+            updateCommentsUI(artworkId);
+            commentsModal.style.display = "block";
         }
+        
+        document.getElementById('close-profile').addEventListener('click', () => profilePanel.classList.remove('open'));
 
-        commentForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!currentUser) {
-                alert('Debes iniciar sesión para comentar.');
-                return;
-            }
-            const commentText = commentInput.value;
-            if (!commentText.trim()) return;
-
-            const button = e.target.querySelector('button');
-            button.disabled = true;
-            button.textContent = 'Enviando...';
-
-            try {
-                const response = await fetch(appsScriptUrl, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'addComment',
-                        artworkId: currentArtworkIdForComment,
-                        commentText: commentText,
-                        user: { uid: currentUser.uid, displayName: currentUser.displayName }
-                    })
-                });
-                const result = await response.json();
-                if(result.status === 'success') {
-                    // Añadir el nuevo comentario a la lista visualmente
-                    const div = document.createElement('div');
-                    div.classList.add('comment');
-                    div.innerHTML = `<p><strong>${result.newComment.userName}:</strong> ${result.newComment.commentText}</p>`;
-                    if(commentsList.querySelector('p')?.textContent.includes('No hay comentarios')) {
-                        commentsList.innerHTML = '';
-                    }
-                    commentsList.appendChild(div);
-                    commentInput.value = '';
-
-                    // Actualizar el contador de comentarios en la tarjeta principal
-                    const countSpan = document.getElementById(`comment-count-${currentArtworkIdForComment}`);
-                    countSpan.textContent = parseInt(countSpan.textContent) + 1;
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                console.error('Error al añadir comentario:', error);
-                alert('No se pudo enviar el comentario.');
-            } finally {
-                button.disabled = false;
-                button.textContent = 'Enviar';
-            }
+        window.addEventListener('resize', () => {
+             const artwork = artworksData.find(art => art.ID_Obra == activeArtworkId);
+             renderDetailsPanel(artwork);
         });
 
     </script>
